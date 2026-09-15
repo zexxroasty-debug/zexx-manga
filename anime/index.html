@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZEXX ANIME</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050505;color:white;font-family:Arial,sans-serif}
+header{padding:22px;text-align:center;background:#101010;border-bottom:1px solid #292929}
+.logo{font-size:28px;font-weight:900;letter-spacing:4px}
+.logo span{color:#e50914}
+.hero{padding:65px 25px;background:linear-gradient(135deg,#080808,#250000)}
+.hero h1{font-size:48px}
+.hero span{color:#e50914}
+.hero p{color:#aaa;margin-top:15px}
+section{padding:35px 20px}
+h2{border-left:4px solid #e50914;padding-left:12px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.card{min-height:230px;padding:20px;background:linear-gradient(145deg,#222,#0d0d0d);border:1px solid #333;display:flex;flex-direction:column;justify-content:end}
+.card h3{font-size:21px}
+.card p{color:#888;margin-top:7px}
+.watch{display:block;margin-top:15px;padding:12px;background:#e50914;color:white;text-align:center;text-decoration:none;font-weight:bold}
+.back{display:inline-block;margin-top:20px;color:#aaa;text-decoration:none}
+footer{text-align:center;padding:35px;color:#555;border-top:1px solid #222}
+ .ai-search{max-width:700px;margin:25px auto;padding:20px;background:#111;border:1px solid #292929;border-radius:8px}.ai-title{font-weight:bold;color:#e50914;margin-bottom:12px}.ai-search input{width:100%;padding:14px;background:#080808;color:#fff;border:1px solid #444;border-radius:5px;font-size:15px}.no-result{color:#777;margin-top:15px}.ai-search{max-width:700px;margin:25px auto;padding:20px;background:#111;border:1px solid #292929;border-radius:10px}.ai-search b{display:block;color:#e50914;margin-bottom:12px}.ai-search input{width:100%;padding:14px;background:#080808;color:white;border:1px solid #444;border-radius:6px}.ai-search #aiResults{margin-top:12px;color:#888}</style>
+</head>
+<body>
+
+<header>
+<div class="logo">ZEXX <span>ANIME</span></div>
+<div style="position:absolute;right:18px;top:18px"><button onclick="toggleAccountMenu()" style="background:#151515;color:white;border:1px solid #333;border-radius:50%;width:42px;height:42px;font-size:22px;cursor:pointer">⋮</button><div id="accountMenu" style="display:none;position:absolute;right:0;top:50px;width:240px;background:#101010;border:1px solid #333;border-radius:10px;padding:15px;z-index:999"><div style="text-align:center"><div id="profilePreview" style="width:70px;height:70px;border-radius:50%;margin:auto;background:#222;display:flex;align-items:center;justify-content:center;font-size:30px">👤</div><h3 id="menuUsername">Account</h3></div><hr style="border-color:#292929;margin:15px 0"><button type="button" onclick="document.getElementByI
+
+profileFile\").click()" style="width:100%;padding:10px;background:#e50914;color:white;border:0;border-radius:6px">🖼️ Profile Picture</button><input id="profileFile" type="file" accept="image/*" style="display:none" onchange="previewProfile(event)"><button type="button" onclick="alert('Username changes are limited to once every 12 days.')" style="width:100%;margin-top:8px;padding:10px;background:#191919;color:white;border:1px solid #333;border-radius:6px">✏️ Change Name</button><button type="button" onclick="alert('Plan system coming next.')" style="width:100%;margin-top:8px;padding:10px;background:#191919;color:white;border:1px solid #333;border-radius:6px">⭐ Upgrade Plan</button></div></div></header><div id="account" style="text-align:center;padding:12px;background:#0b0b0b;border-bottom:1px solid #222"></div>
+
+<div id="ownerPanel" style="display:none;max-width:900px;margin:25px auto;padding:22px;background:#120000;border:1px solid #e50914;border-radius:12px"><div style="color:#ff1744;font-size:22px;font-weight:900">👑 ZEXX OWNER PANEL</div><p style="color:#aaa;margin:8px 0 16px">Premium controls for Zexxofficial</p><a href="/owner/" style="display:block;padding:13px;background:#e50914;color:white;text-align:center;text-decoration:none;border-radius:6px;font-weight:bold">OPEN OWNER CONTROLS</a></div><div class="hero">
+<h1>FREE <span>ANIME</span></h1>
+<p>Watch anime from the ZEXX collection.</p>
+</div><div class="ai-search"><b>🤖 ZEXX AI SEARCH</b><input id="aiInput" placeholder="Search anime..." oninput="aiRecommend()"><div id="aiResults"></div></div>
+
+<section>
+<h2>ANIME LIBRARY</h2>
+
+<div class="grid">
+
+<div class="card">
+<h3>BLEACH: Thousand-Year Blood War</h3>
+<p>Action • Supernatural</p>
+<a class="watch" href="my-anime.html">WATCH →</a>
+</div>
+
+</div>
+
+<a class="back" href="../index.html">← BACK TO ZEXX MANGA</a>
+</section>
+
+<footer>© 2026 ZEXX ANIME</footer>
+
+<script>function aiRecommend(){let q=document.getElementById("aiInput").value.toLowerCase();document.querySelectorAll(".card").forEach(c=>c.style.display=(!q||c.innerText.toLowerCase().includes(q))?"flex":"none")}</script><script>fetch("/api/me").then(r=>r.ok?r.json():null).then(u=>{if(!u)return;let e=document.getElementById("account");if(u.username==="Zexxofficial"){document.getElementById("ownerPanel").style.display="block";e.innerHTML="<span style=\"font-family:Georgia,serif;font-weight:900;color:#ff1744;text-shadow:0 0 6px #f00,0 0 18px #e50914,0 0 30px #f00;letter-spacing:2px\">✦ "+u.username+" ✦</span>"}else{e.innerHTML="<span style=\"color:#bbb\">"+u.username+"</span>"}}).catch(()=>{});</script><script>function toggleAccountMenu(){var m=document.getElementById("accountMenu");m.style.display=m.style.display==="none"?"block":"none"}function previewProfile(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){document.getElementById("profilePreview").innerHTML="<img src=\""+r.result+"\" style=\"width:70px;height:70px;border-radius:50%;object-fit:cover\">"};r.readAsDataURL(f)}fetch("/api/me").then(function(r){return r.ok?r.json():null}).then(function(u){if(u){document.getElementById("menuUsername").textContent=u.username}}).catch(function(){});</script></body>
+</html>

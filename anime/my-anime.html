@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Original Anime - ZEXX</title>
+<style>
+
+body{margin:0;background:#050505;color:white;font-family:Arial,sans-serif}
+header{padding:20px;background:#101010;border-bottom:1px solid #292929}
+.logo{font-size:24px;font-weight:900;letter-spacing:3px}
+.logo span{color:#e50914}
+main{max-width:1000px;margin:auto;padding:25px}
+h1{font-size:30px}
+.player{margin-top:20px;background:#000;border:1px solid #333}
+video{width:100%;display:block}
+.episode{margin-top:25px;padding:20px;background:#151515;border:1px solid #292929}
+.episode h2{margin-top:0}
+.back{display:inline-block;margin-top:25px;color:#aaa;text-decoration:none}
+h2 span{font-size:13px;color:#aaa;margin-left:12px;font-weight:normal}#liveViewers{color:#e50914}</style>
+</head>
+<body>
+
+<header>
+<div class="logo">ZEXX <span>ANIME</span></div>
+</header>
+
+<main>
+<h1>My Original Anime</h1>
+
+<div class="player">
+<video controls controlsList="nodownload" oncontextmenu="return false" playsinline onplay="countView()">
+<source src="videos/episode-1.mp4" type="video/mp4">
+Your browser does not support video playback.
+</video>
+</div>
+
+<div class="episode">
+<h2>Episode 1 <span id="viewCount">&#128065; 0 views</span> <span id="liveViewers">&#128308; 0 watching</span></h2>
+<p>My Original Anime — Episode 1</p>
+</div>
+
+<div class="comments">
+<h2>💬 Comments</h2>
+<textarea id="commentInput" placeholder="Write a comment..." maxlength="1500"></textarea>
+<button onclick="postComment()">POST COMMENT</button>
+<p id="commentStatus"></p>
+<div id="commentList">Loading comments...</div>
+</div>
+
+<a class="back" href="index.html">← Back to Anime</a>
+</main>
+
+<script>function countView(){fetch("/api/view",{method:"POST"});}async function updateStats(){try{let r=await fetch("/api/views");let d=await r.json();document.getElementById("viewCount").innerHTML="👁️ "+d.views+" views";document.getElementById("liveViewers").innerHTML="🔴 "+d.watching+" watching";}catch(e){}}updateStats();setInterval(updateStats,5000);</script><script>async function loadComments(){try{let r=await fetch("/api/comments");let d=await r.json();let b=document.getElementById("commentList");if(!d.comments||!d.comments.length){b.innerHTML="<p>No comments yet.</p>";return;}b.innerHTML=d.comments.map(c=>"<div class=comment><b>"+c.username+"</b><p>"+c.comment+"</p><small>"+c.created_at+"</small></div>").join("");}catch(e){document.getElementById("commentList").innerHTML="<p>Could not load comments.</p>";}}async function postComment(){let i=document.getElementById("commentInput"),s=document.getElementById("commentStatus"),c=i.value.trim();if(!c){s.textContent="Write a comment first.";return;}s.textContent="Posting...";try{let r=await fetch("/api/comments",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"comment="+encodeURIComponent(c)});let d=await r.json();if(!r.ok){s.textContent=d.error||"Failed to post comment.";return;}i.value="";s.textContent="Comment posted!";loadComments();}catch(e){s.textContent="Connection error.";}}loadComments();</script></body>
+</html>

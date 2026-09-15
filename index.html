@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZEXX MANGA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050505;color:#fff;font-family:Arial,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 70% 40%,#3a0000 0,transparent 35%),linear-gradient(135deg,#050505,#111);z-index:-3}
+header{height:70px;padding:20px 7%;display:flex;justify-content:space-between;align-items:center;background:#080808dd;border-bottom:1px solid #292929;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px)}
+.logo{font-size:25px;font-weight:900;letter-spacing:5px}.logo img{height:42px;width:auto;display:block;object-fit:contain}.logo span{color:#e50914}
+nav a{color:#aaa;text-decoration:none;margin-left:20px;font-size:13px}
+.hero{min-height:650px;position:relative;display:flex;align-items:center;padding:70px 7%;overflow:hidden}
+.hero:after{content:"";position:absolute;width:500px;height:500px;right:-150px;top:50px;border:1px solid #e50914;border-radius:50%;box-shadow:0 0 80px #e5091433;animation:spin 15s linear infinite}
+.content{position:relative;z-index:3;max-width:650px}
+.tag{color:#e50914;letter-spacing:5px;font-size:12px;font-weight:bold;margin-bottom:18px}
+h1{font-size:clamp(55px,10vw,110px);line-height:.82;letter-spacing:-5px;text-transform:uppercase}
+h1 span{color:#e50914;text-shadow:0 0 35px #e5091466}
+.subtitle{color:#999;max-width:480px;margin-top:28px;line-height:1.7}
+.btn{display:inline-block;margin-top:30px;padding:15px 28px;background:#e50914;color:white;text-decoration:none;font-weight:bold;border-radius:4px;box-shadow:0 10px 30px #e5091433;transition:.3s}
+.btn:hover{transform:translateY(-4px);box-shadow:0 15px 40px #e5091566}
+.character{position:absolute;right:8%;bottom:0;width:330px;height:530px;z-index:2;transform-style:preserve-3d;animation:float 4s ease-in-out infinite}
+.head{position:absolute;top:55px;left:95px;width:140px;height:150px;background:linear-gradient(145deg,#333,#090909);border-radius:48% 48% 45% 45%;transform:rotate(-5deg);box-shadow:25px 20px 50px #000}
+.hair{position:absolute;top:25px;left:75px;width:180px;height:120px;background:#111;clip-path:polygon(0 30%,25% 0,40% 28%,55% 0,65% 25%,100% 5%,82% 65%,60% 45%,50% 100%,35% 60%,15% 90%);z-index:3}
+.body{position:absolute;bottom:0;left:45px;width:240px;height:370px;background:linear-gradient(110deg,#080808,#222,#070707);clip-path:polygon(25% 0,75% 0,100% 100%,0 100%);border:1px solid #333}
+.eye{position:absolute;top:115px;width:30px;height:5px;background:#e50914;box-shadow:0 0 18px #e50914;z-index:4}
+.e1{left:120px;transform:rotate(8deg)}.e2{left:166px;transform:rotate(-8deg)}
+.panel{position:absolute;border:1px solid #ffffff16;background:#ffffff05;transform:rotate(-8deg);z-index:1}
+.p1{width:180px;height:300px;right:28%;top:80px}.p2{width:120px;height:210px;right:12%;top:260px;transform:rotate(12deg)}
+section{padding:70px 7%}
+.title{font-size:30px;border-left:5px solid #e50914;padding-left:15px;margin-bottom:30px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{min-height:250px;padding:25px;background:linear-gradient(145deg,#191919,#080808);border:1px solid #292929;position:relative;overflow:hidden;transition:.4s}
+.card:hover{transform:translateY(-10px) rotateX(3deg);border-color:#e50914}
+.num{font-size:60px;color:#292929;font-weight:900}
+.card h3{font-size:22px;margin-top:35px}.card p{color:#777;margin-top:8px}
+.read{display:inline-block;margin-top:20px;color:#fff;background:#e50914;padding:10px 15px;text-decoration:none;font-size:12px;font-weight:bold}
+footer{text-align:center;padding:40px;color:#555;border-top:1px solid #222}
+.particle{position:fixed;width:3px;height:3px;background:#e50914;border-radius:50%;opacity:.5;animation:rise 8s linear infinite;z-index:-1}
+@keyframes float{50%{transform:translateY(-18px) rotateY(6deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{transform:translateY(100vh);opacity:0}30%{opacity:.6}to{transform:translateY(-20vh);opacity:0}}
+@media(max-width:700px){nav{display:none}.hero{min-height:700px}.character{right:-90px;opacity:.55}.grid{grid-template-columns:1fr}h1{font-size:65px}}
+
+.aura{position:absolute;inset:20px -20px 0;background:radial-gradient(circle,#e5091433,transparent 60%);filter:blur(12px);animation:auraPulse 3s infinite}
+.face{position:absolute;top:55px;left:92px;width:145px;height:175px;background:linear-gradient(135deg,#f0c7aa,#a86650);border-radius:48% 48% 45% 45%;transform:perspective(500px) rotateY(-8deg);box-shadow:20px 20px 35px #000}
+.ear{position:absolute;top:65px;width:24px;height:42px;background:#b97960;border-radius:50%}
+.ear.left{left:-12px}.ear.right{right:-12px}
+.eye{position:absolute;top:75px;width:35px;height:9px;background:#111;border-radius:100%;transform:rotate(-5deg);box-shadow:0 0 8px #e50914}
+.eye.left{left:28px}.eye.right{right:28px}
+.nose{position:absolute;top:86px;left:68px;width:3px;height:38px;background:#9a5949;border-radius:50%}
+.mouth{position:absolute;bottom:32px;left:52px;width:42px;height:5px;background:#4a1919;border-radius:50%}
+.hair2{position:absolute;top:25px;left:70px;width:190px;height:125px;background:linear-gradient(145deg,#6b4938,#21150f);clip-path:polygon(0 35%,8% 5%,25% 25%,35% 0,48% 23%,62% 0,72% 25%,100% 5%,88% 65%,70% 48%,58% 100%,48% 58%,35% 88%,22% 55%,8% 78%);z-index:4;filter:drop-shadow(12px 12px 12px #000)}
+.coat{position:absolute;bottom:0;left:28px;width:275px;height:355px;background:linear-gradient(110deg,#f5f5f5,#777,#eee,#555);clip-path:polygon(27% 0,73% 0,100% 100%,0 100%);border-radius:18px;box-shadow:20px 25px 45px #000}
+.chest{position:absolute;bottom:0;left:105px;width:120px;height:300px;background:linear-gradient(90deg,#080808,#242424,#050505);clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);z-index:2}
+.neck{position:absolute;top:190px;left:142px;width:48px;height:45px;background:#a96b55;z-index:1}
+.collar{position:absolute;top:205px;width:55px;height:105px;background:#eee;z-index:3}
+.collar.left{left:90px;clip-path:polygon(0 0,100% 15%,70% 100%)}
+.collar.right{right:90px;clip-path:polygon(0 15%,100% 0,30% 100%)}
+@keyframes auraPulse{50%{transform:scale(1.12);opacity:.7}}
+</style>
+<link rel="icon" type="image/jpeg" href="logo.jpg"></head>
+<body>
+
+<header>
+<div class="logo"><img src="logo.jpg" alt="ZEXX MANGA"></div>
+<nav><a href="#latest">MANGA</a><a href="#latest">LATEST</a></nav>
+<a href="anime/index.html" style="display:block;text-align:center;background:#e50914;color:white;padding:15px;text-decoration:none;font-weight:bold">FREE ANIMES ▶</a></header>
+
+<div class="hero">
+<div class="panel p1"></div><div class="panel p2"></div>
+<div class="content">
+<div class="tag">WELCOME TO THE NEXT PANEL</div>
+<h1>ZEXX<br><span>MANGA</span></h1>
+<p class="subtitle">Enter a world of dark stories, powerful characters, legendary battles and unforgettable manga.</p>
+<a class="btn" href="#latest">EXPLORE MANGA →</a>
+</div>
+
+<div class="character">
+<div class="body"></div><div class="head"></div><div class="hair"></div>
+<div class="eye e1"></div><div class="eye e2"></div>
+</div>
+</div>
+
+<section id="latest">
+<h2 class="title">LATEST MANGA</h2>
+<div class="grid">
+<div class="card"><div class="num">01</div><h3>Shadow Reign</h3><p>Action • Dark Fantasy</p><a class="read" href="manga/shadow-reign/1.html">READ CHAPTER 1 →</a></div>
+<div class="card"><div class="num">02</div><h3>Crimson Blade</h3><p>Action • Adventure</p></div>
+<div class="card"><div class="num">03</div><h3>Zero Hunter</h3><p>Fantasy • Battle</p></div>
+</div>
+</section>
+
+<section id="trending">
+<h2 class="title">🔥 TRENDING SHOWS</h2>
+<div class="grid">
+<div class="card"><div class="num">01</div><h3>Trending Anime</h3><p>🔥 Most Watched • Anime</p><a class="read" href="anime/index.html">WATCH NOW →</a></div>
+<div class="card"><div class="num">02</div><h3>Trending Manga</h3><p>🔥 Popular • Manga</p><a class="read" href="#latest">READ NOW →</a></div>
+<div class="card"><div class="num">03</div><h3>Popular Shows</h3><p>🔥 Trending • Latest</p><a class="read" href="anime/index.html">WATCH NOW →</a></div>
+</div>
+</section>
+
+<footer>© 2026 ZEXX MANGA — ENTER THE MANGA WORLD.</footer>
+
+<script>
+for(let i=0;i<25;i++){
+let p=document.createElement("div");p.className="particle";
+p.style.left=Math.random()*100+"%";
+p.style.animationDelay=Math.random()*8+"s";
+document.body.appendChild(p)
+}
+</script>
+<div id="cookieBox" style="position:fixed;bottom:20px;left:20px;right:20px;max-width:600px;margin:auto;background:#111;border:1px solid #e50914;padding:18px;z-index:9999;box-shadow:0 10px 40px #000;color:#fff;font-size:14px">This website uses cookies to remember your preferences. <button onclick="acceptCookies()" style="margin-left:12px;background:#e50914;color:#fff;border:0;padding:10px 18px;font-weight:bold;border-radius:4px">Accept Cookies</button></div><script>function acceptCookies(){localStorage.setItem("zexx_cookie_consent","accepted");document.getElementById("cookieBox").remove()}if(localStorage.getItem("zexx_cookie_consent")==="accepted"){document.getElementById("cookieBox").remove()}</script></body>
+</html>

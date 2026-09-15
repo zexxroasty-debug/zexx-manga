@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZEXX OWNER</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050505;color:#fff;font-family:Arial,sans-serif}
+header{padding:24px;text-align:center;background:#0d0d0d;border-bottom:1px solid #2a0000}
+.logo{font-size:28px;font-weight:900;letter-spacing:3px;color:#fff}
+.logo span{color:#e50914}
+.owner{margin:25px auto;max-width:900px;padding:25px;border:1px solid #3a0000;background:linear-gradient(145deg,#160000,#080808);border-radius:12px}
+.owner h1{color:#ff1744;text-shadow:0 0 10px #e50914;margin-bottom:8px}
+.badge{display:inline-block;padding:6px 10px;border:1px solid #e50914;border-radius:20px;color:#ff1744;font-weight:bold;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:25px}
+.card{padding:22px;background:#101010;border:1px solid #292929;border-radius:10px}
+.card h2{margin-bottom:8px}
+.card p{color:#888}
+button{margin-top:15px;width:100%;padding:12px;background:#e50914;color:#fff;border:0;border-radius:6px;font-weight:bold}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">ZEXX <span>OWNER</span></div>
+</header>
+
+<main class="owner">
+<h1>✦ Zexxofficial</h1>
+<div class="badge">👑 PREMIUM OWNER</div>
+
+<div class="grid">
+<div class="card">
+<h2>🎬 Anime Manager</h2>
+<p>Create and customize your anime titles.</p>
+<button type="button" onclick="openAnimeManager()">Create / Manage Anime</button>
+</div>
+
+<div class="card">
+<h2>📺 Episode Manager</h2>
+<p>Upload and manage episodes one by one.</p>
+<button>Manage Episodes</button>
+</div>
+
+<div class="card">
+<h2>🖼️ Anime Cover</h2>
+<p>Change the cover image for your anime.</p>
+<button>Customize Cover</button>
+</div>
+
+<div class="card">
+<h2>💬 Comments</h2>
+<p>Manage comments and see your premium identity.</p>
+<button>Comment Manager</button>
+</div>
+</div>
+<section id="animeManager" style="display:none;margin-top:25px;padding:22px;background:#0d0d0d;border:1px solid #3a0000;border-radius:10px"><h2 style="color:#ff1744">🎬 Anime Manager</h2><input id="animeName" placeholder="Anime name" maxlength="100" style="width:100%;margin-top:15px;padding:13px;background:#050505;color:white;border:1px solid #444;border-radius:6px"><button type="button" onclick="createAnime()">➕ Create Anime</button><div id="animeList" style="margin-top:20px"></div></section><script>async function openAnimeManager(){let box=document.getElementById("animeManager");box.style.display=box.style.display==="none"?"block":"none";if(box.style.display==="block")loadAnime()}async function loadAnime(){let r=await fetch("/api/owner/anime");let d=await r.json();let el=document.getElementById("animeList");if(!r.ok){el.innerHTML="<p style=\"color:#f55\">"+(d.error||"Error")+"</p>";return}el.innerHTML=d.anime.length?d.anime.map(a=>"<div style=\"padding:12px;margin-top:8px;background:#151515;border:1px solid #292929;border-radius:6px\"><b>"+a.name+"</b></div>").join(""):"<p style=\"color:#777\">No anime created yet.</p>"}async function createAnime(){let name=document.getElementById("animeName").value.trim();if(!name)return alert("Enter an anime name");let body=new URLSearchParams({name});let r=await fetch("/api/owner/anime/create",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});let d=await r.json();if(!r.ok)return alert(d.error||"Could not create anime");document.getElementById("animeName").value="";loadAnime()}</script></main>
+</body>
+</html>
