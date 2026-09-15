@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 server.log
 zexx.db
+*backup*
+*before*
+*.comments-backup
