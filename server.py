@@ -2,7 +2,11 @@ from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 import os
 from pathlib import Path
 from urllib.parse import parse_qs
-import sqlite3, hashlib, secrets, time, re, json, uuid
+import sqlite3, hashlib, secrets, time, re, json, uuid, logging
+
+LOG_FILE="server.log"
+logging.basicConfig(filename=LOG_FILE,level=logging.ERROR,format="%(asctime)s %(levelname)s %(message)s")
+logger=logging.getLogger("zexx")
 
 DB="zexx.db"
 SESSIONS={}
@@ -84,6 +88,17 @@ class Handler(SimpleHTTPRequestHandler):
             rows=c.execute("SELECT id,name,cover,created_at FROM anime ORDER BY id DESC").fetchall()
             c.close()
             send_json(self,{"anime":[{"id":r[0],"name":r[1],"cover":r[2],"created_at":r[3]} for r in rows]})
+            return
+
+        if path=="/api/health":
+            try:
+                c=db()
+                c.execute("SELECT 1").fetchone()
+                c.close()
+                send_json(self,{"ok":True,"server":"ZEXX TV","database":"ok"})
+            except Exception as e:
+                logger.error("Health check failed: %s",e)
+                send_json(self,{"ok":False,"server":"ZEXX TV","database":"error"},500)
             return
 
         if path=="/api/me":
