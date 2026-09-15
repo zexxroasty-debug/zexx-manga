@@ -13,6 +13,8 @@ def db():
     c.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,username TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL)")
     c.execute("CREATE TABLE IF NOT EXISTS stats(id INTEGER PRIMARY KEY CHECK(id=1),views INTEGER NOT NULL DEFAULT 0)")
     c.execute("CREATE TABLE IF NOT EXISTS comments(id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT NOT NULL,comment TEXT NOT NULL,created_at TEXT NOT NULL)")
+    c.execute("CREATE TABLE IF NOT EXISTS anime(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,cover TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL)")
+    c.execute("CREATE TABLE IF NOT EXISTS episodes(id INTEGER PRIMARY KEY AUTOINCREMENT,anime_id INTEGER NOT NULL,episode_number INTEGER NOT NULL,title TEXT NOT NULL,video_file TEXT NOT NULL,created_at TEXT NOT NULL,category TEXT NOT NULL DEFAULT '',FOREIGN KEY(anime_id) REFERENCES anime(id))")
     c.execute("INSERT OR IGNORE INTO stats(id,views) VALUES(1,0)")
     c.commit()
     return c
@@ -57,6 +59,7 @@ def redirect(h,path):
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
+        global VIEW_TIMES
         path=self.path.split("?",1)[0]
 
         if path=="/owner/" or path=="/owner/index.html":
@@ -324,7 +327,7 @@ class Handler(SimpleHTTPRequestHandler):
                 c.close()
                 send_json(self,{"error":"Maximum 50 comments reached"},400)
                 return
-            c.execute("INSERT INTO comments(username,comment,created_at) VALUES(?,?,datetime(now))",(u,comment))
+            c.execute("INSERT INTO comments(username,comment,created_at) VALUES(?,?,datetime('now'))",(u,comment))
             c.commit()
             c.close()
             send_json(self,{"ok":True})
