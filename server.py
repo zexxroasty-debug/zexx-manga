@@ -1,4 +1,5 @@
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+import os
 from urllib.parse import parse_qs
 import sqlite3, hashlib, secrets, time, re, json
 
@@ -241,6 +242,6 @@ class Handler(SimpleHTTPRequestHandler):
         send_json(self,{"error":"not found"},404)
 
 db()
-server=ThreadingHTTPServer(("0.0.0.0",8083),Handler)
+server=ThreadingHTTPServer(("0.0.0.0",int(os.environ.get("PORT","8083"))),Handler)
 print("ZEXX TV SECURE SERVER running on port 8083")
 server.serve_forever()
