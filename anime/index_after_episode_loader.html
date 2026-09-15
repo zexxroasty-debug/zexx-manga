@@ -76,7 +76,7 @@ async function loadUploadedEpisodes() {
                 <a class="watch" href="watch.html?id=${ep.id}">WATCH →</a>
             `;
 
-            const library = document.querySelector('.library') || document.querySelector('.card')?.parentElement;
+            const library = document.querySelector('.library');
             if (library) {
                 library.appendChild(card);
             }

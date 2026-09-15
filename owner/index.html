@@ -55,6 +55,277 @@ button{margin-top:15px;width:100%;padding:12px;background:#e50914;color:#fff;bor
 <button>Comment Manager</button>
 </div>
 </div>
-<section id="animeManager" style="display:none;margin-top:25px;padding:22px;background:#0d0d0d;border:1px solid #3a0000;border-radius:10px"><h2 style="color:#ff1744">🎬 Anime Manager</h2><input id="animeName" placeholder="Anime name" maxlength="100" style="width:100%;margin-top:15px;padding:13px;background:#050505;color:white;border:1px solid #444;border-radius:6px"><button type="button" onclick="createAnime()">➕ Create Anime</button><div id="animeList" style="margin-top:20px"></div></section><script>async function openAnimeManager(){let box=document.getElementById("animeManager");box.style.display=box.style.display==="none"?"block":"none";if(box.style.display==="block")loadAnime()}async function loadAnime(){let r=await fetch("/api/owner/anime");let d=await r.json();let el=document.getElementById("animeList");if(!r.ok){el.innerHTML="<p style=\"color:#f55\">"+(d.error||"Error")+"</p>";return}el.innerHTML=d.anime.length?d.anime.map(a=>"<div style=\"padding:12px;margin-top:8px;background:#151515;border:1px solid #292929;border-radius:6px\"><b>"+a.name+"</b></div>").join(""):"<p style=\"color:#777\">No anime created yet.</p>"}async function createAnime(){let name=document.getElementById("animeName").value.trim();if(!name)return alert("Enter an anime name");let body=new URLSearchParams({name});let r=await fetch("/api/owner/anime/create",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});let d=await r.json();if(!r.ok)return alert(d.error||"Could not create anime");document.getElementById("animeName").value="";loadAnime()}</script></main>
+<section id="animeManager" style="display:none;margin-top:25px;padding:22px;background:#0d0d0d;border:1px solid #3a0000;border-radius:10px"><h2 style="color:#ff1744">🎬 Anime Manager</h2><input id="animeName" placeholder="Anime name" maxlength="100" style="width:100%;margin-top:15px;padding:13px;background:#050505;color:white;border:1px solid #444;border-radius:6px"><button type="button" onclick="createAnime()">➕ Create Anime</button><div id="animeList" style="margin-top:20px"></div></section><script>async function openAnimeManager(){let box=document.getElementById("animeManager");box.style.display=box.style.display==="none"?"block":"none";if(box.style.display==="block")loadAnime()}async function loadAnime(){let r=await fetch("/api/owner/anime");let d=await r.json();let el=document.getElementById("animeList");if(!r.ok){el.innerHTML="<p style=\"color:#f55\">"+(d.error||"Error")+"</p>";return}el.innerHTML=d.anime.length?d.anime.map(a=>"<div style=\"padding:12px;margin-top:8px;background:#151515;border:1px solid #292929;border-radius:6px\"><b>"+a.name+"</b></div>").join(""):"<p style=\"color:#777\">No anime created yet.</p>"}async function createAnime(){let name=document.getElementById("animeName").value.trim();if(!name)return alert("Enter an anime name");let body=new URLSearchParams({name});let r=await fetch("/api/owner/anime/create",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});let d=await r.json();if(!r.ok)return alert(d.error||"Could not create anime");document.getElementById("animeName").value="";loadAnime()}</script>
+<!-- ZEXX_VIDEO_UPLOAD_START -->
+<section id="videoUpload" style="margin-top:25px;padding:22px;background:#0d0d0d;border:1px solid #3a0000;border-radius:10px">
+<h2 style="color:#ff1744">📤 Upload Video</h2>
+<p style="color:#888;margin-top:8px">Only Zexxofficial can publish videos.</p>
+
+<label style="display:block;margin-top:18px;color:#ddd">Anime</label>
+<select id="videoAnime"
+style="width:100%;margin-top:8px;padding:13px;background:#050505;color:white;border:1px solid #444;border-radius:6px">
+<option value="">Loading anime...</option>
+</select>
+
+<label style="display:block;margin-top:15px;color:#ddd">Video file</label>
+<input id="videoFile" type="file" accept="video/*"
+style="display:none">
+
+<button id="selectVideoBtn" type="button" onclick="openVideoPicker()">
+📁 Select Video
+</button>
+
+<div id="selectedFile" style="margin-top:10px;color:#aaa"></div>
+
+<label style="display:block;margin-top:15px;color:#ddd">Video title</label>
+<input id="videoTitle" type="text" maxlength="150"
+placeholder="Enter video title"
+style="width:100%;margin-top:8px;padding:13px;background:#050505;color:white;border:1px solid #444;border-radius:6px">
+
+<label style="display:block;margin-top:15px;color:#ddd">Category</label>
+<select id="videoCategory"
+style="width:100%;margin-top:8px;padding:13px;background:#050505;color:white;border:1px solid #444;border-radius:6px">
+<option value="Anime">Anime</option>
+<option value="Popular">Popular</option>
+<option value="Latest">Latest</option>
+</select>
+
+<button id="uploadVideoBtn" type="button" onclick="startVideoUpload()">
+⬆️ Upload Video
+</button>
+
+<div id="uploadStatus"
+style="margin-top:15px;padding:12px;background:#080808;border-radius:6px;color:#aaa">
+Ready to upload.
+</div>
+
+<div style="margin-top:12px;background:#222;border-radius:8px;overflow:hidden;height:18px">
+<div id="uploadBar"
+style="width:0%;height:100%;background:#e50914;transition:width .2s">
+</div>
+</div>
+
+<div id="uploadPercent"
+style="margin-top:8px;text-align:center;font-weight:bold;color:#fff">
+0%
+</div>
+
+<div id="uploadDetails"
+style="margin-top:5px;text-align:center;color:#777;font-size:13px">
+0 MB / 0 MB
+</div>
+</section>
+
+<script>
+let currentXHR=null;
+
+async function loadVideoAnime(){
+    const select=document.getElementById("videoAnime");
+    const status=document.getElementById("uploadStatus");
+
+    select.innerHTML='<option value="">Loading anime...</option>';
+
+    try{
+        const r=await fetch("/api/owner/anime?_= "+Date.now(),{
+            method:"GET",
+            credentials:"same-origin",
+            cache:"no-store"
+        });
+
+        const text=await r.text();
+
+        if(!r.ok){
+            throw new Error("HTTP "+r.status+": "+text);
+        }
+
+        const d=JSON.parse(text);
+
+        if(!d.anime || d.anime.length===0){
+            select.innerHTML='<option value="">Create an anime first</option>';
+            status.textContent="⚠️ No anime found.";
+            return;
+        }
+
+        select.innerHTML="";
+
+        d.anime.forEach(function(a){
+            const option=document.createElement("option");
+            option.value=String(a.id);
+            option.textContent=a.name;
+            select.appendChild(option);
+        });
+
+        select.selectedIndex=0;
+
+        status.textContent=
+            "Ready to upload to: "+select.options[select.selectedIndex].textContent;
+
+    }catch(e){
+        console.error("Anime loading error:",e);
+        select.innerHTML='<option value="">Failed to load anime</option>';
+        status.textContent="❌ Could not load anime: "+e.message;
+    }
+}
+
+loadVideoAnime();
+
+function openVideoPicker(){
+    if(currentXHR){
+        return;
+    }
+
+    document.getElementById("videoFile").click();
+}
+
+document.getElementById("videoFile").addEventListener("change",function(){
+    const file=this.files[0];
+    const selected=document.getElementById("selectedFile");
+
+    if(!file){
+        selected.textContent="";
+        return;
+    }
+
+    selected.textContent=
+        "Selected: "+file.name+
+        " • "+formatMB(file.size);
+});
+
+function formatMB(bytes){
+    return (bytes/1024/1024).toFixed(2)+" MB";
+}
+
+function setProgress(percent,loaded,total){
+    percent=Math.max(0,Math.min(100,percent));
+
+    document.getElementById("uploadBar").style.width=percent+"%";
+    document.getElementById("uploadPercent").textContent=
+        Math.round(percent)+"%";
+
+    document.getElementById("uploadDetails").textContent=
+        formatMB(loaded)+" / "+formatMB(total);
+}
+
+function setUploading(state){
+    document.getElementById("selectVideoBtn").disabled=state;
+    document.getElementById("uploadVideoBtn").disabled=state;
+
+    document.getElementById("videoAnime").disabled=state;
+    document.getElementById("videoTitle").disabled=state;
+    document.getElementById("videoCategory").disabled=state;
+}
+
+function startVideoUpload(){
+    if(currentXHR){
+        return;
+    }
+
+    const file=document.getElementById("videoFile").files[0];
+    const title=document.getElementById("videoTitle").value.trim();
+    const category=document.getElementById("videoCategory").value;
+    const animeId=document.getElementById("videoAnime").value;
+
+    const status=document.getElementById("uploadStatus");
+
+    if(!file){
+        openVideoPicker();
+        return;
+    }
+
+    if(!animeId){
+        alert("Select an anime first.");
+        return;
+    }
+
+    if(!title){
+        alert("Enter a video title.");
+        return;
+    }
+
+    status.textContent="Preparing upload...";
+    setProgress(0,0,file.size);
+    setUploading(true);
+
+    const xhr=new XMLHttpRequest();
+    currentXHR=xhr;
+
+    xhr.open("POST","/api/owner/video/upload",true);
+
+    xhr.setRequestHeader("Content-Type","application/octet-stream");
+    xhr.setRequestHeader("X-Video-Title",title);
+    xhr.setRequestHeader("X-Video-Category",category);
+    xhr.setRequestHeader("X-Anime-ID",animeId);
+    xhr.setRequestHeader("X-Video-Filename",file.name);
+
+    xhr.upload.addEventListener("loadstart",function(){
+        status.textContent="⬆️ Uploading video...";
+    });
+
+    xhr.upload.addEventListener("progress",function(e){
+        if(!e.lengthComputable){
+            status.textContent="⬆️ Uploading video...";
+            return;
+        }
+
+        const percent=(e.loaded/e.total)*100;
+
+        setProgress(percent,e.loaded,e.total);
+
+        status.textContent=
+            "⬆️ Uploading... "+Math.round(percent)+"%";
+    });
+
+    xhr.upload.addEventListener("load",function(){
+        status.textContent="📦 Upload finished. Saving video...";
+    });
+
+    xhr.addEventListener("load",function(){
+        currentXHR=null;
+        setUploading(false);
+
+        let data={};
+
+        try{
+            data=JSON.parse(xhr.responseText||"{}");
+        }catch(e){}
+
+        if(xhr.status>=200 && xhr.status<300 && data.ok){
+            setProgress(100,file.size,file.size);
+
+            status.textContent=
+                "✅ Video uploaded successfully! Episode "+
+                data.episode_number+" created.";
+
+            document.getElementById("videoFile").value="";
+            document.getElementById("selectedFile").textContent="";
+            document.getElementById("videoTitle").value="";
+        }else{
+            status.textContent=
+                "❌ Upload failed: "+
+                (data.error||("Server error "+xhr.status));
+        }
+    });
+
+    xhr.addEventListener("error",function(){
+        currentXHR=null;
+        setUploading(false);
+        status.textContent=
+            "❌ Network error. The video was not uploaded.";
+    });
+
+    xhr.addEventListener("abort",function(){
+        currentXHR=null;
+        setUploading(false);
+        status.textContent="⚠️ Upload cancelled.";
+    });
+
+    xhr.send(file);
+}
+
+loadVideoAnime();
+</script>
+<!-- ZEXX_VIDEO_UPLOAD_END -->
+
+</main>
 </body>
 </html>

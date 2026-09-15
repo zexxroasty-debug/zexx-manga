@@ -1,7 +1,8 @@
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 import os
+from pathlib import Path
 from urllib.parse import parse_qs
-import sqlite3, hashlib, secrets, time, re, json
+import sqlite3, hashlib, secrets, time, re, json, uuid
 
 DB="zexx.db"
 SESSIONS={}
@@ -110,10 +111,138 @@ class Handler(SimpleHTTPRequestHandler):
             send_json(self,{"views":views,"watching":len(VIEW_TIMES)})
             return
 
+        if path=="/api/episodes":
+            c=db()
+            rows=c.execute("""
+                SELECT e.id,e.anime_id,e.episode_number,e.title,
+                       e.video_file,e.created_at,e.category,a.name
+                FROM episodes e
+                JOIN anime a ON a.id=e.anime_id
+                ORDER BY e.id DESC
+            """).fetchall()
+            c.close()
+
+            send_json(self,{
+                "episodes":[
+                    {
+                        "id":r[0],
+                        "anime_id":r[1],
+                        "episode_number":r[2],
+                        "title":r[3],
+                        "video_file":r[4],
+                        "created_at":r[5],
+                        "category":r[6],
+                        "anime_name":r[7]
+                    }
+                    for r in rows
+                ]
+            })
+            return
+
         super().do_GET()
 
     def do_POST(self):
         path=self.path.split("?",1)[0]
+
+        # ZEXX_STREAM_UPLOAD_START
+        if path=="/api/owner/video/upload":
+            if not is_owner(self):
+                send_json(self,{"error":"owner access required"},403)
+                return
+
+            title=self.headers.get("X-Video-Title","").strip()
+            category=self.headers.get("X-Video-Category","Anime").strip()
+            anime_id=self.headers.get("X-Anime-ID","").strip()
+            filename=self.headers.get("X-Video-Filename","").strip()
+
+            if not title:
+                send_json(self,{"error":"Video title is required"},400)
+                return
+
+            if len(title)>150:
+                send_json(self,{"error":"Video title must be 150 characters or less"},400)
+                return
+
+            if category not in ("Anime","Popular","Latest"):
+                send_json(self,{"error":"Invalid category"},400)
+                return
+
+            if not anime_id.isdigit():
+                send_json(self,{"error":"Valid anime ID is required"},400)
+                return
+
+            if not filename:
+                send_json(self,{"error":"Video filename is required"},400)
+                return
+
+            ext=Path(filename).suffix.lower()
+            allowed={".mp4",".webm",".mov",".m4v",".mkv"}
+            if ext not in allowed:
+                send_json(self,{"error":"Unsupported video format"},400)
+                return
+
+            c=db()
+            anime=c.execute("SELECT id FROM anime WHERE id=?",(int(anime_id),)).fetchone()
+
+            if not anime:
+                c.close()
+                send_json(self,{"error":"Anime not found"},404)
+                return
+
+            episode_row=c.execute(
+                "SELECT COALESCE(MAX(episode_number),0)+1 FROM episodes WHERE anime_id=?",
+                (int(anime_id),)
+            ).fetchone()
+            episode_number=episode_row[0]
+
+            safe_name=uuid.uuid4().hex+ext
+            video_dir=Path("anime/videos")
+            video_dir.mkdir(parents=True,exist_ok=True)
+            video_path=video_dir/safe_name
+
+            try:
+                remaining=int(self.headers.get("Content-Length","0"))
+                if remaining<=0:
+                    raise ValueError("Empty upload")
+
+                with open(video_path,"wb") as out:
+                    while remaining>0:
+                        chunk=self.rfile.read(min(1024*1024,remaining))
+                        if not chunk:
+                            raise ValueError("Upload ended unexpectedly")
+                        out.write(chunk)
+                        remaining-=len(chunk)
+
+                c.execute(
+                    "INSERT INTO episodes(anime_id,episode_number,title,video_file,created_at,category) VALUES(?,?,?,?,datetime('now'),?)",
+                    (int(anime_id),episode_number,title,"videos/"+safe_name,category)
+                )
+                c.commit()
+                episode_id=c.execute("SELECT last_insert_rowid()").fetchone()[0]
+                c.close()
+
+                send_json(self,{
+                    "ok":True,
+                    "id":episode_id,
+                    "anime_id":int(anime_id),
+                    "episode_number":episode_number,
+                    "title":title,
+                    "category":category,
+                    "video_file":"videos/"+safe_name
+                })
+                return
+
+            except Exception as e:
+                try:
+                    if video_path.exists():
+                        video_path.unlink()
+                except:
+                    pass
+                c.close()
+                send_json(self,{"error":"Upload failed: "+str(e)},500)
+                return
+        # ZEXX_STREAM_UPLOAD_END
+
         length=int(self.headers.get("Content-Length",0))
         data=parse_qs(self.rfile.read(length).decode())
 
